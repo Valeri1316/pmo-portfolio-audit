@@ -102,7 +102,7 @@ def all_issues():
     return [
         ("ИТ", "Битые коды проектов", broken, code_total),
         ("Финансы", "Суммы текстом", dirty, amt_total),
-        ("Финансы", "Разные форматы дат", alt_fmt, date_total),
+        ("Финансы", "Дата-заглушка", alt_fmt, date_total),
         ("PMO", "Даты-заглушки", implausible, sched_total_b),
         ("PMO", "fact_end без fact_start", no_start, sched_total_a),
     ]
