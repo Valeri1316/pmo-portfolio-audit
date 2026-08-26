@@ -110,7 +110,13 @@ def pm_reliability(conn):
     sql/bonus_analysis.sql, запрос 2."""
     with conn.cursor() as cur:
         cur.execute("""
-            WITH project_dates AS (
+            WITH last_task AS (
+                SELECT DISTINCT ON (project_code)
+                       project_code, fact_end IS NULL AS still_open
+                FROM project_tasks
+                ORDER BY project_code, plan_end DESC
+            ),
+            project_dates AS (
                 SELECT project_code, MAX(plan_end) AS plan_end, MAX(fact_end) AS fact_end
                 FROM project_tasks GROUP BY project_code
             ),
@@ -118,7 +124,9 @@ def pm_reliability(conn):
                 SELECT p.pm_name, p.project_code, pd.fact_end - pd.plan_end AS overrun_days
                 FROM projects p
                 JOIN project_dates pd USING (project_code)
+                JOIN last_task lt USING (project_code)
                 WHERE pd.fact_end IS NOT NULL
+                  AND NOT lt.still_open
             ),
             pm_budget AS (
                 SELECT p.pm_name, SUM(pp.amount_rub) AS total_budget_rub

@@ -31,10 +31,21 @@ ORDER BY avg_overrun_days DESC;
 -- (как в разделе ТЗ), а % проектов, сданных с опозданием, и средний
 -- срыв. Даёт другой разрез той же роли: кто много осваивает — не
 -- всегда тот, кто укладывается в сроки.
--- Использует ту же оговорку, что и запрос 1.2 в analysis.sql: для
--- 4 проектов с незакрытой последней задачей MAX(fact_end) занижает
--- реальный срыв.
-WITH project_dates AS (
+--
+-- Проекты с незакрытой последней задачей исключены (CTE last_task).
+-- Причина: у такого проекта MAX(fact_end) берёт дату предпоследней
+-- задачи, и проект выглядит сданным досрочно на десятки дней, хотя
+-- на деле ещё не сдан. На текущих данных таких 4 (PRJ-045, PRJ-056,
+-- PRJ-089, PRJ-098), и без этого фильтра двое PM ошибочно получали
+-- отрицательный средний срыв. В остальных метриках эти проекты
+-- остаются — там они не искажают результат.
+WITH last_task AS (
+    SELECT DISTINCT ON (project_code)
+           project_code, fact_end IS NULL AS still_open
+    FROM project_tasks
+    ORDER BY project_code, plan_end DESC
+),
+project_dates AS (
     SELECT project_code, MAX(plan_end) AS plan_end, MAX(fact_end) AS fact_end
     FROM project_tasks
     GROUP BY project_code
@@ -43,7 +54,9 @@ pm_projects AS (
     SELECT p.pm_name, p.project_code, pd.fact_end - pd.plan_end AS overrun_days
     FROM projects p
     JOIN project_dates pd USING (project_code)
+    JOIN last_task lt USING (project_code)
     WHERE pd.fact_end IS NOT NULL
+      AND NOT lt.still_open
 )
 SELECT
     pm_name,
