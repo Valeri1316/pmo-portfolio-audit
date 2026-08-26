@@ -70,5 +70,5 @@ def apply_base_style(ax, *, x_grid=False, y_grid=True):
 def save(fig, path):
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
-    fig.savefig(path, transparent=True)
+    fig.savefig(path, transparent=True, dpi=200)
     plt.close(fig)

@@ -1,5 +1,5 @@
 """
-Генератор графиков для презентации: Postgres -> charts/output/*.svg.
+Генератор графиков для презентации: Postgres -> charts/output/*.png.
 
 Точка входа, которая связывает вместе остальные модули этого пакета:
   config.py        — пути, подключение к БД, каталог вывода
@@ -39,21 +39,21 @@ def main():
 
     print("Строю графики...")
     with conn:
-        plots.category_split_donut(queries.category_split(conn), OUTPUT_DIR / "category_split_donut.svg")
-        plots.top5_overrun_bar(queries.top5_overrun(conn), OUTPUT_DIR / "top5_overrun_bar.svg")
-        plots.overrun_histogram(queries.overrun_distribution(conn), OUTPUT_DIR / "overrun_histogram.svg")
-        plots.stage_benchmark_bar(queries.stage_benchmark(conn), OUTPUT_DIR / "stage_benchmark_bar.svg")
-        plots.top3_pm_budget_bar(queries.top3_pm_budget(conn), OUTPUT_DIR / "top3_pm_budget_bar.svg")
-        plots.pm_reliability_scatter(queries.pm_reliability(conn), OUTPUT_DIR / "pm_reliability_scatter.svg")
-        plots.currency_donut(queries.currency_structure(conn), OUTPUT_DIR / "currency_donut.svg")
-        plots.category_comparison_panels(queries.category_comparison(conn), OUTPUT_DIR / "category_comparison.svg")
+        plots.category_split_donut(queries.category_split(conn), OUTPUT_DIR / "category_split_donut.png")
+        plots.top5_overrun_bar(queries.top5_overrun(conn), OUTPUT_DIR / "top5_overrun_bar.png")
+        plots.overrun_histogram(queries.overrun_distribution(conn), OUTPUT_DIR / "overrun_histogram.png")
+        plots.stage_benchmark_bar(queries.stage_benchmark(conn), OUTPUT_DIR / "stage_benchmark_bar.png")
+        plots.top3_pm_budget_bar(queries.top3_pm_budget(conn), OUTPUT_DIR / "top3_pm_budget_bar.png")
+        plots.pm_reliability_scatter(queries.pm_reliability(conn), OUTPUT_DIR / "pm_reliability_scatter.png")
+        plots.currency_donut(queries.currency_structure(conn), OUTPUT_DIR / "currency_donut.png")
+        plots.category_comparison_panels(queries.category_comparison(conn), OUTPUT_DIR / "category_comparison.png")
 
         kpis = queries.kpi_summary(conn)
     conn.close()
 
     print("Считаю аномалии в сырых xlsx (для слайда о качестве данных)...")
     issues = data_quality.all_issues()
-    plots.data_quality_bar(issues, OUTPUT_DIR / "data_quality_bar.svg")
+    plots.data_quality_bar(issues, OUTPUT_DIR / "data_quality_bar.png")
 
     kpi_path = OUTPUT_DIR / "kpi_summary.txt"
     kpi_path.write_text(
@@ -66,8 +66,8 @@ def main():
         encoding="utf-8",
     )
 
-    svg_count = len(list(OUTPUT_DIR.glob("*.svg")))
-    print(f"Готово: {svg_count} SVG + kpi_summary.txt в {OUTPUT_DIR}")
+    png_count = len(list(OUTPUT_DIR.glob("*.png")))
+    print(f"Готово: {png_count} PNG + kpi_summary.txt в {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":
