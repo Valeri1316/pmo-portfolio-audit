@@ -6,32 +6,37 @@ ETL и SQL-аналитика по трём несвязанным выгруз�
 
 ```
 .
-├── docker-compose.yml   # Postgres для проверки результатов без своей БД
-├── data/raw/            # исходные выгрузки как есть (3 xlsx)
+├── charts/                        # второй контур: Postgres -> SVG
+│   ├── output/                        # SVG + kpi_summary.txt (не в git)
+│   ├── config.py                      # подключение к БД, каталог вывода
+│   ├── data_quality.py                # аномалии из сырых xlsx, минуя БД
+│   ├── main.py                        # точка входа (запускать этот файл)
+│   ├── plots.py                       # рендер каждого графика в SVG
+│   ├── queries.py                     # выборки из БД (зеркало sql/*.sql)
+│   └── style.py                       # палитра и оформление осей
+├── data/
+│   └── raw/                           # исходные выгрузки как есть, не изменяются
+│       ├── it_landscape.xlsx              # закупки оборудования (ИТ-департамент)
+│       ├── projects_budgets.xlsx          # платежи (финансовый учёт)
+│       └── projects_schedule.xlsx         # задачи и даты (PMO)
 ├── docs/
-│   ├── task_description.docx  # ТЗ, оригинал
-│   ├── task_description.md    # ТЗ, читаемая версия
-│   ├── findings.md             # выводы по качеству данных + бонусный анализ
-│   └── presentation_plan.md     # план итоговой презентации по слайдам
-├── etl/
-│   ├── config.py        # пути к файлам, подключение к БД, курс валют
-│   ├── normalize.py     # нормализация кодов проектов, дат, сумм
-│   ├── extract.py       # чтение xlsx -> нормализованные строки
-│   ├── load.py           # создание схемы и запись в Postgres
-│   └── main.py            # точка входа: связывает всё вместе (запускать этот файл)
+│   ├── findings.md                    # качество данных + бонусный анализ
+│   ├── presentation_plan.md           # план презентации по слайдам
+│   └── task_description.md            # ТЗ
+├── etl/                           # первый контур: xlsx -> Postgres
+│   ├── config.py                      # пути к файлам, подключение к БД, курс валют
+│   ├── extract.py                     # чтение xlsx -> нормализованные строки
+│   ├── load.py                        # создание схемы и запись в Postgres
+│   ├── main.py                        # точка входа (запускать этот файл)
+│   └── normalize.py                   # нормализация кодов проектов, дат, сумм
 ├── sql/
-│   ├── create_tables.sql   # схема БД
-│   ├── analysis.sql         # обязательная аналитика по разделам ТЗ
-│   └── bonus_analysis.sql    # аналитика вне ТЗ (см. docs/findings.md)
-└── charts/
-    ├── config.py         # подключение к БД, каталог вывода
-    ├── style.py           # палитра и оформление осей (единый стиль графиков)
-    ├── queries.py          # выборки из БД для графиков (зеркало sql/*.sql)
-    ├── data_quality.py      # аномалии из сырых xlsx (для слайда о качестве данных)
-    ├── plots.py              # рендер каждого графика в SVG
-    ├── main.py                # точка входа: строит все графики (запускать этот файл)
-    └── output/                 # сюда сохраняются SVG + kpi_summary.txt (не в git)
-```
+│   ├── analysis.sql                   # обязательная аналитика по разделам ТЗ
+│   ├── bonus_analysis.sql             # аналитика вне ТЗ (см. docs/findings.md)
+│   └── create_tables.sql              # схема БД, выполняется из etl/load.py
+├── .gitignore                     # что не попадает в репозиторий
+├── docker-compose.yml             # Postgres одной командой, если своего нет
+├── README.md                      # этот файл
+└── requirements.txt               # зависимости: openpyxl, psycopg2, matplotlib
 
 Пайплайн линейный: `data/raw/*.xlsx` → `etl/main.py` (создаёт схему из `sql/create_tables.sql` и грузит данные) → Postgres → `sql/analysis.sql` → `charts/main.py` (графики для презентации).
 
