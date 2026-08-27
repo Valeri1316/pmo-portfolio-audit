@@ -10,8 +10,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
-from style import CATEGORICAL, INK_MUTED, INK_PRIMARY, INK_SECONDARY, apply_base_style, new_figure, save
-
+from style import BASELINE, CATEGORICAL, INK_MUTED, INK_PRIMARY, INK_SECONDARY, apply_base_style, new_figure, save
 
 def _donut(labels, values, label_fmt, out_path):
     """Общий рендер для донат-чартов (доля категории/валюты).
@@ -236,3 +235,33 @@ def data_quality_bar(issues, out_path):
     handles = [Patch(color=source_color[s], label=s) for s in sources]
     ax.legend(handles=handles, frameon=False, fontsize=9, labelcolor=INK_SECONDARY, loc="upper right")
     save(fig, out_path)
+
+
+def buffer_waterfall(balance, path):
+    """Три независимых числа: накопленная задержка по этапам, буфер в плане,
+    итоговый срыв проекта. Показаны отдельными столбцами, а не каскадом
+    вычитания — буфер расходуется по каждому переходу отдельно, а не одной
+    суммой, поэтому "накоплено минус буфер" не равно фактическому срыву.
+    """
+    acc = float(balance["accumulated"])
+    buf = float(balance["buffer"])
+    res = float(balance["overrun"])
+
+    fig, ax = new_figure(figsize=(8, 4.5))
+
+    labels = ["Накоплено\nпо этапам", "Буфер\nв плане", "Срыв\nпроекта"]
+    heights = [acc, buf, res]
+    colors = [INK_MUTED, CATEGORICAL[1], CATEGORICAL[0]]
+
+    bars = ax.bar(labels, heights, color=colors, width=0.55)
+
+    for bar, value in zip(bars, heights):
+        ax.text(bar.get_x() + bar.get_width() / 2, value + 0.6,
+                f"{value:.1f} дн.", ha="center", va="bottom",
+                fontsize=13, fontweight="bold", color=INK_PRIMARY)
+
+    ax.set_ylim(0, acc * 1.18)
+    ax.set_ylabel("Дней")
+    apply_base_style(ax)
+    ax.tick_params(axis="x", labelsize=11)
+    save(fig, path)

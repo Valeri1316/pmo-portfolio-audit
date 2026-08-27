@@ -47,6 +47,7 @@ def main():
         plots.pm_reliability_scatter(queries.pm_reliability(conn), OUTPUT_DIR / "pm_reliability_scatter.png")
         plots.currency_donut(queries.currency_structure(conn), OUTPUT_DIR / "currency_donut.png")
         plots.category_comparison_panels(queries.category_comparison(conn), OUTPUT_DIR / "category_comparison.png")
+        plots.buffer_waterfall(queries.buffer_balance(conn), OUTPUT_DIR / "buffer_waterfall.png")
 
         kpis = queries.kpi_summary(conn)
     conn.close()
