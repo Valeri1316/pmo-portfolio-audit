@@ -34,9 +34,11 @@ ETL и SQL-аналитика по трём несвязанным выгруз�
 │   ├── bonus_analysis.sql             # аналитика вне ТЗ (см. docs/findings.md)
 │   └── create_tables.sql              # схема БД, выполняется из etl/load.py
 ├── .gitignore                     # что не попадает в репозиторий
+├── deck.py                        # сборка презентации: Postgres + charts/output -> pptx
 ├── docker-compose.yml             # Postgres одной командой, если своего нет
+├── portfolio_audit.pptx           # собранная презентация (генерируется deck.py, не в git)
 ├── README.md                      # этот файл
-├── requirements.txt               # зависимости: openpyxl, psycopg2, matplotlib
+├── requirements.txt                # зависимости: openpyxl, psycopg2, matplotlib, python-pptx
 └── verify.py                      # сверка цифр из docs/ с фактическими расчётами
 
 Пайплайн линейный: `data/raw/*.xlsx` → `etl/main.py` (создаёт схему из `sql/create_tables.sql` и грузит данные) → Postgres → `sql/analysis.sql` → `charts/main.py` (графики для презентации).
